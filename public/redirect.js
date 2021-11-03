@@ -1,16 +1,33 @@
+document.cookie = "access_token=; Max-Age=-99999999;";
+document.cookie = "refresh_token=; Max-Age=-99999999;";
 
 let client_id = null;
 let client_secret = null;
 const auth_link = "https://www.strava.com/oauth/token";
 
-getAPI_KEY().then((res) => {
-    console.log("Cleint secret: " + res.client_secret);
-    client_id = res.client_id;
-    client_secret = res.client_secret;
+console.log(document.cookie);
 
-    auth();
-});
+if (document.cookie != ''){
 
+    console.log("You previously logged in to strava");
+    //console.log(getCookie('auth_token'));
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    ca = ca[1].split('=');
+    console.log(ca);
+    refresh_token = ca[1];
+    console.log(refresh_token);
+    reAuthorize();
+
+}else{
+    getAPI_KEY().then((res) => {
+        console.log("Client secret: " + res.client_secret);
+        client_id = res.client_id;
+        client_secret = res.client_secret;
+    
+        auth();
+    });
+}
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // functions
@@ -46,9 +63,30 @@ function cleanupAuthToken(str) {
     return str.split("&")[1].slice(5);
 }
 
+function getCookie(cname) {
+    let name = cname + "=";
+    console.log(name);
+    let decodedCookie = decodeURIComponent(document.cookie);
+    console.log(decodedCookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+      let c = ca[i];
+      console.log(c);
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+}
+
 async function getActivities(res) {
 
     console.log("Access token: " + res.access_token);
+    document.cookie = "access_token=" +  res.access_token + ";"
+    document.cookie = "refresh_token=" +  res.refresh_token + ";"
 
     const activities_link = `https://www.strava.com/api/v3/athlete/activities?access_token=${res.access_token}`
 
@@ -94,6 +132,7 @@ async function getTokens(auth_token) {
 }
 
 function reAuthorize() {
+    console.log(refresh_token);
     fetch(auth_link, {
         method: 'post',
         headers: {
