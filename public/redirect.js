@@ -1,26 +1,54 @@
 //require('dotenv').config()
 
-//const client_secret = process.env.CLIENT_SECRET;
-const client_secret = 'd8342e4105460e9f836cac614f3e4263eca1f0c1';
+
+
+async function getAPI_KEY() {
+    const response = await fetch('/api');
+    const data = await response.json();
+
+    return data
+}
+
+let client_id = null;
+let client_secret = null;
+
+getAPI_KEY().then((res) => {
+    console.log("Cleint secret: " + res.client_secret);
+    client_id = res.client_id;
+    client_secret = res.client_secret;
+
+    auth();
+});
+
 const auth_link = "https://www.strava.com/oauth/token";
 
+function auth(){
+    
+    console.log(client_secret);
 
-auth_token = location.search;
-auth_token = cleanupAuthToken(auth_token);
-console.log("Authentication Token: " + auth_token)
+    //const client_secret = process.env.CLIENT_SECRET;
+    //const client_secret = 'd8342e4105460e9f836cac614f3e4263eca1f0c1';
+    
+
+
+    auth_token = location.search;
+    auth_token = cleanupAuthToken(auth_token);
+    console.log("Authentication Token: " + auth_token)
 
 
 
-let access_token = null;
-let refresh_token = null;
+    let access_token = null;
+    let refresh_token = null;
 
-getTokens(auth_token).then(function (res) {
-    access_token = res.access_token;
-    refresh_token = res.refresh_token;
+    getTokens(auth_token).then(function (res) {
+        access_token = res.access_token;
+        refresh_token = res.refresh_token;
 
-    getActivities(res);
+        getActivities(res);
 
-});
+    });
+}
+
 
 function cleanupAuthToken(str) {
     return str.split("&")[1].slice(5);
@@ -47,12 +75,6 @@ async function getActivities(res) {
         document.getElementById("activities").innerText = str;
         
     });
-    
-    
-   /*
-    let response = await fetch(activities_link);
-    console.log(response.json());
-    */
 
 }
 
