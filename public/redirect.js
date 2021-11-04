@@ -1,11 +1,3 @@
-/*
-document.cookie = "access_token=; Max-Age=-99999999;";
-document.cookie = "refresh_token=; Max-Age=-99999999;";
-document.cookie = "client_id=; Max-Age=-99999999;";
-document.cookie = "client_secret=; Max-Age=-99999999;";
-*/
-
-//console.log(document.cookie);
 
 let client_id = null;
 let client_secret = null;
