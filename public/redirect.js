@@ -1,5 +1,9 @@
+/*
 document.cookie = "access_token=; Max-Age=-99999999;";
 document.cookie = "refresh_token=; Max-Age=-99999999;";
+document.cookie = "client_id=; Max-Age=-99999999;";
+document.cookie = "client_secret=; Max-Age=-99999999;";
+*/
 
 let client_id = null;
 let client_secret = null;
@@ -10,13 +14,18 @@ console.log(document.cookie);
 if (document.cookie != ''){
 
     console.log("You previously logged in to strava");
-    //console.log(getCookie('auth_token'));
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    ca = ca[1].split('=');
-    console.log(ca);
-    refresh_token = ca[1];
-    console.log(refresh_token);
+    let cookies = decodeURIComponent(document.cookie).split(';');
+    let cleaned_cookies = []
+    cookies.forEach(cookie => {
+        cleaned_cookies.push(cookie.split('='));
+    })
+    console.log(cleaned_cookies);
+    refresh_token = cleaned_cookies[1][1];
+    client_id = cleaned_cookies[2][1];
+    client_secret = cleaned_cookies[3][1];
+    console.log("Refresh token found in cookies: " + refresh_token);
+    console.log("Client id found in cookies: " + client_id);
+    console.log("Client secert found in cookies: " + client_secret);
     reAuthorize();
 
 }else{
@@ -87,6 +96,8 @@ async function getActivities(res) {
     console.log("Access token: " + res.access_token);
     document.cookie = "access_token=" +  res.access_token + ";"
     document.cookie = "refresh_token=" +  res.refresh_token + ";"
+    document.cookie = "client_id=" + client_id + ";"
+    document.cookie = "client_secret=" + client_secret + ";"
 
     const activities_link = `https://www.strava.com/api/v3/athlete/activities?access_token=${res.access_token}`
 
@@ -131,8 +142,11 @@ async function getTokens(auth_token) {
     return response.json();
 }
 
+
 function reAuthorize() {
+    console.log("Client secret: " + client_secret);
     console.log(refresh_token);
+
     fetch(auth_link, {
         method: 'post',
         headers: {
@@ -145,9 +159,32 @@ function reAuthorize() {
 
             client_id: client_id,
             client_secret: client_secret,
-            refresh_token: refresh_token,
-            grant_type: 'refresh_token'
+            grant_type: 'refresh_token',
+            refresh_token: refresh_token
         })
     }).then(res => res.json())
         .then(res => getActivities(res))
+}
+
+
+async function reAuthorize1() {
+    const response = await fetch(auth_link, {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json'
+
+        },
+
+        body: JSON.stringify({
+
+            client_id: client_id,
+            client_secret: client_secret,
+            grant_type: 'refresh_token',
+            refresh_token: refresh_token
+        })
+    })
+
+
+    getActivities(response.json());
 }
