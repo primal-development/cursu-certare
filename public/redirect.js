@@ -3,7 +3,7 @@ let client_id = null;
 let client_secret = null;
 const auth_link = "https://www.strava.com/oauth/token";
 
-// detecting if the user already connected strav ato the app
+// detecting if the user already connected strava to the app
 // it is done by checking if there are any existing cookies
 if (document.cookie != ''){
     console.log("You previously connected strava");
@@ -33,7 +33,6 @@ if (document.cookie != ''){
     getAPI_KEY().then((res) => {
         client_id = res.client_id;
         client_secret = res.client_secret;
-    
         // begin authentification process
         auth();
     });
@@ -50,6 +49,26 @@ async function getAPI_KEY() {
     return keys
 }
 
+async function submitUserCredentials(url, data) {
+    // Default options are marked with *
+    console.log("Submitting user credentials");
+    const response = await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    console.log(response.json()); // parses JSON response into native JavaScript objects
+    return response.json();
+  }
+
 
 //begin authentification process
 function auth(){
@@ -60,11 +79,21 @@ function auth(){
 
     let access_token = null;
     let refresh_token = null;
+    let athlete_id = null;
 
     // getting the access and refresh token by making a post request with the authentification code
     getTokens(auth_token).then(function (res) {
         access_token = res.access_token;
         refresh_token = res.refresh_token;
+        athlete_id = res.athlete.id;
+
+        console.log("AthleteID: " +  athlete_id);
+
+        let data = {
+            athlete_id: athlete_id,
+            refresh_token: refresh_token
+        };
+        submitUserCredentials('/key', data);
 
         // get the activities of the authenticated athlete
         getActivities(res);
