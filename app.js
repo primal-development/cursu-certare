@@ -21,9 +21,9 @@ const pool = mariadb.createPool({
 });
 
 
-//connect();
+//connect1();
 
-async function connect() {
+async function connect1() {
   let conn, query;
   try {
 	conn = await pool.getConnection();
@@ -31,17 +31,10 @@ async function connect() {
   query = 'USE strava';
   let res = await conn.query(query);
   console.log("Test" + res);
-  query = 'SELECT first_name, last_name from Testuser WHERE userID = 1';
+  query = 'SELECT first_name, last_name from Testuser WHERE athleteID = 24473138';
   res = await conn.query(query);
   console.log(res);
   conn.end();
-
-  /*
-	const rows = await conn.query("SELECT 1 as val");
-	console.log(rows); //[ {val: 1}, meta: ... ]
-	const res = await conn.query("INSERT INTO myTable value (?, ?)", [1, "mariadb"]);
-	console.log(res); // { affectedRows: 1, insertId: 1, warningStatus: 0 }
-*/
 
   } catch (err) {
 	throw err;
@@ -50,7 +43,57 @@ async function connect() {
   }
 }
 
+async function connect() {
+  let conn;
+  try {
+	return await pool.getConnection();
+  //return conn;
 
+  query = 'USE strava';
+  let res = await conn.query(query);
+  console.log("Test" + res);
+  query = 'SELECT first_name, last_name from Testuser WHERE athleteID = 24473138';
+  res = await conn.query(query);
+  console.log(res);
+  conn.end();
+
+  } catch (err) {
+	throw err;
+  } finally {
+	if (conn) return conn.end();
+  }
+}
+
+async function sendQuery(conn, query){
+  return await conn.query(query)
+}
+
+async function disconnect(conn){
+  conn.end();
+}
+
+
+async function testconnection(){
+  connect().then(conn => {
+    conn.query('USE strava');
+    conn.query('SELECT * FROM Testuser').then((res) => {
+      console.log(res);
+      disconnect(conn);
+    })
+  });
+}
+
+async function insertnewuser(athlete_id, refresh_token, first_name, last_name){
+  connect().then(conn => {
+    conn.query('USE strava');
+    console.log("REPLACE INTO Testuser SET athleteID=" + athlete_id + ", first_name='" + first_name + "', last_name='" + last_name + "', refresh_token='" + refresh_token + "';");
+    conn.query("REPLACE INTO Testuser SET athleteID=" + athlete_id + ", first_name='" + first_name + "', last_name='" + last_name + "', refresh_token='" + refresh_token + "';");
+    conn.query('SELECT * FROM Testuser').then((res) => {
+      console.log(res);
+      disconnect(conn);
+    })
+  });
+}
 
 
 
@@ -73,7 +116,11 @@ app.post("/key", (request,response) => {
   // contenuto della richiesta
   console.log(request.body);
   // username
-  console.log(request.body.athelete_id);
+  console.log(request.body.athlete_id);
   // password
   console.log(request.body.refresh_token);
+  insertnewuser(request.body.athlete_id, request.body.refresh_token, request.body.first_name, request.body.last_name);
 });
+
+
+//testconnection();

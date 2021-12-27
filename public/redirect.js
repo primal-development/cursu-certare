@@ -80,18 +80,24 @@ function auth(){
     let access_token = null;
     let refresh_token = null;
     let athlete_id = null;
+    let first_name = null;
+    let last_name = null;
 
     // getting the access and refresh token by making a post request with the authentification code
     getTokens(auth_token).then(function (res) {
         access_token = res.access_token;
         refresh_token = res.refresh_token;
         athlete_id = res.athlete.id;
+        first_name = res.athlete.firstname;
+        last_name = res.athlete.lastname;
 
         console.log("AthleteID: " +  athlete_id);
 
         let data = {
             athlete_id: athlete_id,
-            refresh_token: refresh_token
+            refresh_token: refresh_token,
+            first_name: first_name,
+            last_name: last_name
         };
         submitUserCredentials('/key', data);
 
