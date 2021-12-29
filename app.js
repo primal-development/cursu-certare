@@ -21,41 +21,11 @@ const pool = mariadb.createPool({
 });
 
 
-//connect1();
-
-async function connect1() {
-  let conn, query;
-  try {
-	conn = await pool.getConnection();
-
-  query = 'USE strava';
-  let res = await conn.query(query);
-  console.log("Test" + res);
-  query = 'SELECT first_name, last_name from Testuser WHERE athleteID = 24473138';
-  res = await conn.query(query);
-  console.log(res);
-  conn.end();
-
-  } catch (err) {
-	throw err;
-  } finally {
-	if (conn) return conn.end();
-  }
-}
-
 async function connect() {
   let conn;
   try {
 	return await pool.getConnection();
   //return conn;
-
-  query = 'USE strava';
-  let res = await conn.query(query);
-  console.log("Test" + res);
-  query = 'SELECT first_name, last_name from Testuser WHERE athleteID = 24473138';
-  res = await conn.query(query);
-  console.log(res);
-  conn.end();
 
   } catch (err) {
 	throw err;
