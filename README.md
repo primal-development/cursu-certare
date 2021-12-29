@@ -3,7 +3,7 @@
  <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
 </p>
 
-<h3 align="center">Project Title</h3>
+<h3 align="center">Cursu Certare</h3>
 
 <div align="center">
 
@@ -16,7 +16,7 @@
 
 ---
 
-<p align="center"> Few lines describing your project.
+<p align="center"> A training diary with a strava implementation
     <br> 
 </p>
 
@@ -34,37 +34,49 @@
 
 ## 🧐 About <a name = "about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
+Cursu Certare is a training diary application. It is web based. The application is still in early development ⚠️. The main feature of the application is that it implements the strava API and therefore automatically syncs the activities uploaded on strava to the application.
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
+The project can easily be cloned and worked on. You need a few essential npm libraries.🔽
 
 ### Prerequisites
 
-What things you need to install the software and how to install them.
-
+#### Node JS
+#### NPM
+#### NPM libraries
 ```
-Give examples
+express
+dotenv
+body-parser
+mysql
+mariadb
 ```
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running.
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
+Install Node JS - search in browser, download and install
+Install npm - search in browser, download and install
+Navigate to the project directory
 
 ```
-until finished
+npm install express
+npm install dotenv
+npm install body-parser
+npm install mysql
+npm install mariadb
 ```
 
-End with an example of getting some data out of the system or using it for a little demo.
+Create a .env file where you enter the details of your own strava api --> CLIENT_ID and CLIENT_SECRET
+Edit the const redirectURL in index.html and enter your own url (also localhost)
+In app.js edit the host, user and password of your mariadb database (database files are coming soon)
+
+Run the project
+```
+sudo node app.js
+```
+
+Open the browser
 
 ## 🔧 Running the tests <a name = "tests"></a>
 
