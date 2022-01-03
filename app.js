@@ -34,10 +34,6 @@ async function connect() {
   }
 }
 
-async function sendQuery(conn, query){
-  return await conn.query(query)
-}
-
 async function disconnect(conn){
   conn.end();
 }
