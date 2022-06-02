@@ -2,15 +2,31 @@ require('dotenv').config();
 var bodyParser = require("body-parser");
 var express = require('express');
 const { request, response } = require('express');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 const cors = require('cors');
 
 
+// Certificate
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/stravatest.ddns.net/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/stravatest.ddns.net/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/stravatest.ddns.net/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
 var app = express();
-var port = 80;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(express.static(__dirname, { dotfiles: 'allow' } ));
+app.enable('trust proxy')
+
 
 const mariadb = require('mariadb');
 const pool = mariadb.createPool({
@@ -63,9 +79,33 @@ async function insertnewuser(athlete_id, refresh_token, first_name, last_name){
 
 
 
-app.listen(port);
+// Starting both http & https servers
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(80, () => {
+	console.log('HTTP Server running on port 80');
+});
+
+httpsServer.listen(443, () => {
+	console.log('HTTPS Server running on port 443');
+});
+
+
+//app.listen(port);
 
 app.use(express.static(__dirname + '/public'));
+
+// set up a route to redirect http to https
+app.get('*', function(req, res) {
+  console.log("Test") 
+  res.redirect('https://stravatest.ddns.net' + req.url);
+
+  // Or, if you don't want to automatically detect the domain name from the request header, you can hard code it:
+  // res.redirect('https://example.com' + req.url);
+})
+
+
 
 const data = {
    client_id:  process.env.CLIENT_ID,
