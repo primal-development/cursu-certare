@@ -1,0 +1,26 @@
+services: 
+  app:
+    build: .
+    container_name: cc-app
+    ports:
+      - "80:80"
+    networks:
+      - docker-service
+    depends_on: 
+      - mariadb
+
+  mariadb:
+    image: mariadb:latest
+    container_name: cc-db
+    ports:
+      - "3306:3306"
+    environment: 
+      MYSQL_ROOT_PASSWORD: "password"
+    networks:
+      - docker-service
+    volumes:
+      - ./db/:/docker-entrypoint-initdb.d/
+
+networks:
+  docker-service:
+    driver: bridge

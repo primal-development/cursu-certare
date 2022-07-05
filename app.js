@@ -110,6 +110,7 @@ async function insertnewuser(athlete_id, refresh_token, first_name, last_name) {
 
 app.use(express.static(__dirname + '/public'));
 
+/*
 // set up a route to redirect http to https
 app.get('*', function (req, res) {
   console.log("Test")
@@ -118,6 +119,7 @@ app.get('*', function (req, res) {
   // Or, if you don't want to automatically detect the domain name from the request header, you can hard code it:
   // res.redirect('https://example.com' + req.url);
 })
+*/
 
 
 
