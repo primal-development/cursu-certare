@@ -38,9 +38,17 @@ Cursu Certare is a training diary application. It is web based. The application 
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-The project can easily be cloned and worked on. You need a few essential npm libraries.🔽
+### Docker
+
+To run the project with docker compose: (First enter the correct values to .env, and check docker-compose.yml for the root-password)
+
+```
+docker compose up
+```
+
 
 ### Prerequisites
+The project can easily be cloned and worked on. You need a few essential npm libraries.🔽
 
 #### Node JS
 #### NPM
