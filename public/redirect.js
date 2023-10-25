@@ -43,7 +43,17 @@ if (document.cookie != ''){
 
 // get API key like client_id and client_secret that are securely located on a .env file on the server
 async function getAPI_KEY() {
-    const response = await fetch('/api');
+    const response = await fetch('https://stravatest.ddns.net/api' , {
+        method: 'get',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+    });
     const keys = await response.json();
 
     return keys
@@ -99,7 +109,7 @@ function auth(){
             first_name: first_name,
             last_name: last_name
         };
-        submitUserCredentials('/key', data);
+        submitUserCredentials('https://stravatest.ddns.net/key', data);
 
         // get the activities of the authenticated athlete
         getActivities(res);
