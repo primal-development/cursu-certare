@@ -48,7 +48,7 @@ async function insertnewuser(athlete_id, refresh_token, first_name, last_name){
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(80, () => {
+httpServer.listen(81, () => {
 	console.log('HTTP Server running on port 80');
 });
 
