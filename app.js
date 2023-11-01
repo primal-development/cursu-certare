@@ -1,17 +1,23 @@
-require('dotenv').config();
-var bodyParser = require("body-parser");
-var express = require('express');
-const fs = require('fs');
-const http = require('http');
-const https = require('https');
-const cors = require('cors');
-const mariadb = require('mariadb');
+require('dotenv').config();                     // import dotev
+var bodyParser = require("body-parser");        // Body parser import --> json functions
+var express = require('express');               // express server
+const fs = require('fs');                       // file system functions
+const http = require('http');                   // http ant https
+const https = require('https');                 // http ant https
+const cors = require('cors');                   // Cross origin resource sharing
+const mariadb = require('mariadb');             // db client --> mariadb
 
-let httpsEnabled = false;
+const hostname = '192.168.1.4', httpport = 80, httpsport = 443;     // define ip and ports where it gets hosted
+let httpEnabled = true;       // disable/enable http
+let httpsEnabled = false;      // disable/enable https
+
+// get db client credentials from .env
+const mariadb_url = process.env.MARIADB_URL;
+const mariadb_user = process.env.MARIADB_USER;
 
 
 // Enable https only when all the files are provided
-if(envIsDefined(process.env.HTTPS_PRIVKEY_PATH) && envIsDefined(process.env.HTTPS_CERT_PATH) && envIsDefined(HTTPS_CA_PATH)) {
+if(envIsDefined(process.env.HTTPS_PRIVKEY_PATH) && envIsDefined(process.env.HTTPS_CERT_PATH) && envIsDefined(process.env.HTTPS_CA_PATH)) {
   httpsEnabled = true;
 }
 
@@ -19,7 +25,7 @@ let credentials = null;
 if(httpsEnabled) {
   console.log("✅ https enabled");
   // Certificates
-  const privateKey = fs.readFileSync(process.env.HTTPS_PRIVKEY_PATH, 'utf8');
+  const privateKey = fs.readFileSync(process.env.HTTPS_PRIVKEY_PATH, 'utf8');     // Attention sudo node app.js otherwise fs doesn't have the rights to acces file
   const certificate = fs.readFileSync(process.env.HTTPS_CERT_PATH, 'utf8');
   const ca = fs.readFileSync(process.env.HTTPS_CA_PATH, 'utf8');
   credentials = {
@@ -31,17 +37,33 @@ if(httpsEnabled) {
   console.log("⚠️ https not enabled (missing private key, cert or ca files)");
 }
 
-
+// crete express server
 var app = express();
 
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(express.static(__dirname, { dotfiles: 'allow' }));
+app.use(cors());                                              // use cross origin resource sharing
+app.use(bodyParser.urlencoded({ extended: false }));          // bodyparser --> json
+app.use(bodyParser.json());                                   // bodyparser --> json
+app.use(express.static(__dirname, { dotfiles: 'allow' }));    // use the public folder as html files
+app.use(express.static(__dirname + '/public'));               // use the public folder as html files
 app.enable('trust proxy')
 
-const mariadb_url = process.env.MARIADB_URL;
-const mariadb_user = process.env.MARIADB_USER;
+
+// Starting http server & https servers (if credentials are given)
+if(httpEnabled){
+  const httpServer = http.createServer(app);
+
+  httpServer.listen(httpport, hostname, () => {
+    console.log(`✅ HTTP Server running at http://${hostname}:${httpport}/`);
+  });
+}
+
+if(httpsEnabled){
+  const httpsServer = https.createServer(credentials, app);
+
+  httpsServer.listen(httpsport, hostname, () => {
+    console.log(`✅ HTTPS Server running at https://${hostname}:${httpsport}/`);
+  });
+}
 
 // Abort programm if no database connection string is provided 
 if (!envIsDefined(mariadb_url)) {
@@ -108,21 +130,7 @@ async function insertnewuser(athlete_id, refresh_token, first_name, last_name) {
 
 
 
-app.use(express.static(__dirname + '/public'));
-
-/*
-// set up a route to redirect http to https
-app.get('*', function (req, res) {
-  console.log("Test")
-  res.redirect('https://stravatest.ddns.net' + req.url);
-
-  // Or, if you don't want to automatically detect the domain name from the request header, you can hard code it:
-  // res.redirect('https://example.com' + req.url);
-})
-*/
-
-
-
+// give strava api credentials to the frontend
 const data = {
   client_id: process.env.CLIENT_ID,
   client_secret: process.env.CLIENT_SECRET
@@ -132,6 +140,8 @@ app.get('/api', (request, response) => {
   response.json(data);
   console.log("Test");
 });
+
+
 
 app.post("/key", (request, response) => {
   console.log("Ricevuto una richiesta POST");
@@ -145,10 +155,8 @@ app.post("/key", (request, response) => {
 });
 
 
-//testconnection();
 
-
-// webhooks
+// webhooks fro strava activity alert
 
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
@@ -178,24 +186,11 @@ app.get('/webhook', (req, res) => {
   }
 });
 
+
+// se if .env is defined
 function envIsDefined(env_string) {
   if(env_string === "" || env_string === null) {
     return false;
   }
   return true;
-}
-
-// Starting http server & https servers (if credentials are given)
-const httpServer = http.createServer(app);
-
-httpServer.listen(80, () => {
-  console.log('✅ HTTP Server running on port 80');
-});
-
-if(httpsEnabled){
-  const httpsServer = https.createServer(credentials, app);
-
-  httpsServer.listen(443, () => {
-    console.log('✅ HTTPS Server running on port 443');
-  });
 }

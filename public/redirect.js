@@ -7,6 +7,7 @@ const auth_link = "https://www.strava.com/oauth/token";
 // it is done by checking if there are any existing cookies
 if (document.cookie != ''){
     console.log("You previously connected strava");
+    console.log(document.cookie);
 
     let cleaned_cookies = [];   // where the cookie values will be in second position of the array eg.:  refresh_token = cleaned_cookies[1][1];
     let cookies = decodeURIComponent(document.cookie).split(';');   // get cookies and put them in an array
@@ -43,7 +44,7 @@ if (document.cookie != ''){
 
 // get API key like client_id and client_secret that are securely located on a .env file on the server
 async function getAPI_KEY() {
-    const response = await fetch('https://stravatest.ddns.net/api' , {
+    const response = await fetch('https://demez.asuscomm.com/api' , {
         method: 'get',
         mode: 'cors',
         cache: 'no-cache',
@@ -109,7 +110,7 @@ function auth(){
             first_name: first_name,
             last_name: last_name
         };
-        submitUserCredentials('https://stravatest.ddns.net/key', data);
+        submitUserCredentials('https://demez.asuscomm.com/key', data);
 
         // get the activities of the authenticated athlete
         getActivities(res);
